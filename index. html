@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5fb;
+            color: #222;
+        }
+
+        header {
+            background: #5146d8;
+            color: white;
+            text-align: center;
+            padding: 25px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 25px auto;
+            padding: 15px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px #0002;
+        }
+
+        h2 {
+            color: #5146d8;
+        }
+
+        input {
+            padding: 12px;
+            margin: 5px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+
+        button {
+            padding: 12px 18px;
+            background: #5146d8;
+            color: white;
+            border: 0;
+            border-radius: 7px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #search {
+            width: 95%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+
+        th {
+            background: #eee;
+        }
+
+        .delete {
+            background: #d9534f;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        @media (max-width: 600px) {
+            input {
+                width: 95%;
+            }
+
+            table {
+                font-size: 13px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Student Management System</h1>
+    <p>BCA Mini Project</p>
+</header>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Add Student</h2>
+
+        <input type="text" id="name" placeholder="Student Name">
+        <input type="text" id="roll" placeholder="Roll Number">
+        <input type="text" id="course" placeholder="Course">
+        <input type="number" id="marks" placeholder="Marks">
+
+        <button onclick="addStudent()">Add Student</button>
+    </div>
+
+    <div class="card">
+        <h2>Student Records</h2>
+
+        <input
+            type="text"
+            id="search"
+            placeholder="Search by name or roll number"
+            onkeyup="showStudents()"
+        >
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Roll No.</th>
+                    <th>Course</th>
+                    <th>Marks</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+
+            <tbody id="records"></tbody>
+        </table>
+    </div>
+
+</div>
+
+<footer>
+    Student Management System | BCA Project
+</footer>
+
+<script>
+
+let students = [];
+
+function addStudent() {
+
+    let name = document.getElementById("name").value;
+    let roll = document.getElementById("roll").value;
+    let course = document.getElementById("course").value;
+    let marks = document.getElementById("marks").value;
+
+    if (name === "" || roll === "" || course === "" || marks === "") {
+        alert("Please fill all fields");
+        return;
+    }
+
+    students.push({
+        name: name,
+        roll: roll,
+        course: course,
+        marks: marks
+    });
+
+    document.getElementById("name").value = "";
+    document.getElementById("roll").value = "";
+    document.getElementById("course").value = "";
+    document.getElementById("marks").value = "";
+
+    showStudents();
+}
+
+function showStudents() {
+
+    let search = document
+        .getElementById("search")
+        .value
+        .toLowerCase();
+
+    let records = document.getElementById("records");
+
+    records.innerHTML = "";
+
+    students.forEach(function(student, index) {
+
+        if (
+            student.name.toLowerCase().includes(search) ||
+            student.roll.toLowerCase().includes(search)
+        ) {
+
+            records.innerHTML += `
+                <tr>
+                    <td>${student.name}</td>
+                    <td>${student.roll}</td>
+                    <td>${student.course}</td>
+                    <td>${student.marks}%</td>
+                    <td>
+                        <button
+                            class="delete"
+                            onclick="deleteStudent(${index})">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }
+    });
+}
+
+function deleteStudent(index) {
+
+    students.splice(index, 1);
+
+    showStudents();
+}
+
+</script>
+
+</body>
+</html>
