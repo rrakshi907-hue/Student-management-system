@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management System</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f3f5fb;margin:0;color:#222}
+header{background:#5146d8;color:white;text-align:center;padding:25px}
+.container{max-width:900px;margin:25px auto;padding:15px}
+.card{background:white;padding:20px;margin-bottom:20px;border-radius:12px;box-shadow:0 2px 8px #ddd}
+input{padding:12px;margin:5px;border:1px solid #ccc;border-radius:6px}
+button{padding:11px 16px;margin:5px;border:0;border-radius:6px;background:#5146d8;color:white;cursor:pointer}
+button.delete{background:#d33}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{padding:12px;border-bottom:1px solid #ddd;text-align:left}
+th{background:#eee}
+.empty{text-align:center;color:#777}
+</style>
+</head>
+<body>
+<header><h1>Student Management System</h1><p>Add, view and delete student records</p></header>
+
+<div class="container">
+<div class="card">
+<h2>Add Student</h2>
+<input id="name" placeholder="Student Name">
+<input id="roll" placeholder="Roll Number">
+<input id="course" placeholder="Course">
+<input id="marks" type="number" placeholder="Marks">
+<button onclick="addStudent()">Add Student</button>
+</div>
+
+<div class="card">
+<h2>Student Records</h2>
+<table>
+<thead><tr><th>Name</th><th>Roll No.</th><th>Course</th><th>Marks</th><th>Action</th></tr></thead>
+<tbody id="studentList"></tbody>
+</table>
+<p id="empty" class="empty">No students added yet.</p>
+</div>
+</div>
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || [];
+
+function displayStudents(){
+    const list=document.getElementById("studentList");
+    const empty=document.getElementById("empty");
+    list.innerHTML="";
+    empty.style.display=students.length ? "none" : "block";
+    students.forEach((s,i)=>{
+        list.innerHTML += `<tr>
+        <td>${escapeHTML(s.name)}</td>
+        <td>${escapeHTML(s.roll)}</td>
+        <td>${escapeHTML(s.course)}</td>
+        <td>${s.marks}</td>
+        <td><button class="delete" onclick="deleteStudent(${i})">Delete</button></td>
+        </tr>`;
+    });
+}
+
+function addStudent(){
+    const name=document.getElementById("name").value.trim();
+    const roll=document.getElementById("roll").value.trim();
+    const course=document.getElementById("course").value.trim();
+    const marks=document.getElementById("marks").value;
+
+    if(!name || !roll || !course || marks===""){
+        alert("Please fill all fields.");
+        return;
+    }
+
+    students.push({name,roll,course,marks});
+    localStorage.setItem("students",JSON.stringify(students));
+    document.querySelectorAll("input").forEach(x=>x.value="");
+    displayStudents();
+}
+
+function deleteStudent(index){
+    students.splice(index,1);
+    localStorage.setItem("students",JSON.stringify(students));
+    displayStudents();
+}
+
+function escapeHTML(text){
+    return text.replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#039;"}[m]));
+}
+
+displayStudents();
+</script>
+</body>
+</html>
