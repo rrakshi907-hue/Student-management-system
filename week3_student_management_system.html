@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Management System</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f2f4f8;margin:0;padding:20px}
+.container{max-width:800px;margin:auto;background:white;padding:25px;border-radius:12px;box-shadow:0 2px 10px #bbb}
+h1{text-align:center}
+input,button{padding:10px;margin:5px;border-radius:6px;border:1px solid #ccc}
+button{background:#5146d8;color:white;border:0;cursor:pointer}
+table{width:100%;margin-top:20px;border-collapse:collapse}
+th,td{padding:10px;border:1px solid #ddd;text-align:center}
+th{background:#5146d8;color:white}
+.delete{background:#e53935}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Student Management System</h1>
+
+<input type="text" id="name" placeholder="Student Name">
+<input type="text" id="course" placeholder="Course">
+<input type="number" id="marks" placeholder="Marks">
+<button onclick="addStudent()">Add Student</button>
+
+<table>
+<thead>
+<tr><th>Name</th><th>Course</th><th>Marks</th><th>Action</th></tr>
+</thead>
+<tbody id="studentTable"></tbody>
+</table>
+</div>
+
+<script>
+function addStudent(){
+    let name=document.getElementById("name").value;
+    let course=document.getElementById("course").value;
+    let marks=document.getElementById("marks").value;
+
+    if(name==="" || course==="" || marks===""){
+        alert("Please enter all details");
+        return;
+    }
+
+    let table=document.getElementById("studentTable");
+    let row=table.insertRow();
+
+    row.insertCell(0).innerHTML=name;
+    row.insertCell(1).innerHTML=course;
+    row.insertCell(2).innerHTML=marks;
+    row.insertCell(3).innerHTML='<button class="delete" onclick="deleteStudent(this)">Delete</button>';
+
+    document.getElementById("name").value="";
+    document.getElementById("course").value="";
+    document.getElementById("marks").value="";
+}
+
+function deleteStudent(button){
+    button.parentElement.parentElement.remove();
+}
+</script>
+</body>
+</html>
