@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Week 4 Assignment - Student Management System</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f4f6fb;color:#222}
+header{background:linear-gradient(135deg,#5146d8,#27a9d6);color:white;text-align:center;padding:28px 15px}
+header h1{margin:0 0 8px;font-size:28px}
+header p{margin:0;font-size:15px}
+.container{max-width:1000px;margin:25px auto;padding:0 15px}
+.card{background:white;border-radius:14px;padding:20px;margin-bottom:20px;box-shadow:0 4px 15px rgba(0,0,0,.08)}
+h2{margin-top:0;color:#5146d8}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+input,select,button{width:100%;padding:12px;border:1px solid #d5d8e2;border-radius:8px;font-size:15px}
+button{border:0;background:#5146d8;color:white;cursor:pointer;font-weight:bold}
+button:hover{opacity:.9}
+.btn-secondary{background:#777}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.stat{padding:18px;text-align:center;background:#eef0ff;border-radius:10px}
+.stat strong{display:block;font-size:26px;color:#5146d8}
+.search{margin-bottom:15px}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{padding:12px;border-bottom:1px solid #eee;text-align:left}
+th{background:#f0f1f8;color:#333}
+.action{display:flex;gap:7px}
+.edit{background:#f0a400}
+.delete{background:#d9363e}
+.empty{text-align:center;padding:25px;color:#777}
+footer{text-align:center;padding:20px;color:#666;font-size:13px}
+@media(max-width:600px){.stats{grid-template-columns:1fr}.action{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Student Management System</h1>
+  <p>Week 4 Assignment | HTML, CSS and JavaScript</p>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>Add / Update Student</h2>
+    <div class="form-grid">
+      <input id="name" type="text" placeholder="Student Name">
+      <input id="roll" type="text" placeholder="Roll Number">
+      <input id="course" type="text" placeholder="Course">
+      <input id="marks" type="number" min="0" max="100" placeholder="Marks (%)">
+      <button onclick="saveStudent()">Save Student</button>
+      <button class="btn-secondary" onclick="clearForm()">Clear</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Dashboard</h2>
+    <div class="stats">
+      <div class="stat"><strong id="total">0</strong>Total Students</div>
+      <div class="stat"><strong id="average">0%</strong>Average Marks</div>
+      <div class="stat"><strong id="passed">0</strong>Passed Students</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Student Records</h2>
+    <input class="search" id="search" type="text" placeholder="Search by name, roll number or course..." oninput="displayStudents()">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Name</th><th>Roll No.</th><th>Course</th><th>Marks</th><th>Status</th><th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="studentTable"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<footer>Week 4 Assignment – Student Management System</footer>
+
+<script>
+let students = JSON.parse(localStorage.getItem("students")) || [];
+let editIndex = -1;
+
+function saveStudent(){
+  const name = document.getElementById("name").value.trim();
+  const roll = document.getElementById("roll").value.trim();
+  const course = document.getElementById("course").value.trim();
+  const marks = Number(document.getElementById("marks").value);
+
+  if(!name || !roll || !course || document.getElementById("marks").value===""){
+    alert("Please fill all fields.");
+    return;
+  }
+  if(marks < 0 || marks > 100){
+    alert("Marks must be between 0 and 100.");
+    return;
+  }
+
+  const student = {name, roll, course, marks};
+
+  if(editIndex === -1){
+    students.push(student);
+  }else{
+    students[editIndex] = student;
+    editIndex = -1;
+  }
+
+  localStorage.setItem("students", JSON.stringify(students));
+  clearForm();
+  displayStudents();
+}
+
+function displayStudents(){
+  const table = document.getElementById("studentTable");
+  const search = document.getElementById("search").value.toLowerCase();
+  table.innerHTML = "";
+
+  const filtered = students.filter(s =>
+    s.name.toLowerCase().includes(search) ||
+    s.roll.toLowerCase().includes(search) ||
+    s.course.toLowerCase().includes(search)
+  );
+
+  if(filtered.length === 0){
+    table.innerHTML = '<tr><td colspan="7" class="empty">No student records found.</td></tr>';
+  }else{
+    filtered.forEach((s, i) => {
+      const originalIndex = students.indexOf(s);
+      const status = s.marks >= 35 ? "Pass" : "Fail";
+      table.innerHTML += `
+        <tr>
+          <td>${i+1}</td>
+          <td>${escapeHTML(s.name)}</td>
+          <td>${escapeHTML(s.roll)}</td>
+          <td>${escapeHTML(s.course)}</td>
+          <td>${s.marks}%</td>
+          <td>${status}</td>
+          <td class="action">
+            <button class="edit" onclick="editStudent(${originalIndex})">Edit</button>
+            <button class="delete" onclick="deleteStudent(${originalIndex})">Delete</button>
+          </td>
+        </tr>`;
+    });
+  }
+
+  updateStats();
+}
+
+function editStudent(index){
+  const s = students[index];
+  document.getElementById("name").value = s.name;
+  document.getElementById("roll").value = s.roll;
+  document.getElementById("course").value = s.course;
+  document.getElementById("marks").value = s.marks;
+  editIndex = index;
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function deleteStudent(index){
+  if(confirm("Delete this student record?")){
+    students.splice(index,1);
+    localStorage.setItem("students", JSON.stringify(students));
+    displayStudents();
+  }
+}
+
+function clearForm(){
+  document.getElementById("name").value="";
+  document.getElementById("roll").value="";
+  document.getElementById("course").value="";
+  document.getElementById("marks").value="";
+  editIndex=-1;
+}
+
+function updateStats(){
+  const total = students.length;
+  const average = total ? (students.reduce((sum,s)=>sum+s.marks,0)/total).toFixed(1) : 0;
+  const passed = students.filter(s=>s.marks>=35).length;
+
+  document.getElementById("total").textContent = total;
+  document.getElementById("average").textContent = average + "%";
+  document.getElementById("passed").textContent = passed;
+}
+
+function escapeHTML(text){
+  return text.replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c];
+  });
+}
+
+displayStudents();
+</script>
+</body>
+</html>
